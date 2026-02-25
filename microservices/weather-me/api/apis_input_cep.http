@@ -1,0 +1,23 @@
+### Smoke test 1 - Invalid zipcode (waiting for 200)
+POST http://localhost:8081/
+Content-Type: application/json
+
+{
+  "cep": "29902555"
+}
+
+### Smoke test 2 - Invalid zipcode (not a string, expected: 422 invalid zipcode)
+POST http://localhost:8081/
+Content-Type: application/json
+
+{
+  "cep": 29902555
+}
+
+### Extra case - Invalid zipcode (less than 8 digits, expected: 422 invalid zipcode)
+POST http://localhost:8081/
+Content-Type: application/json
+
+{
+  "cep": "2990255"
+}
