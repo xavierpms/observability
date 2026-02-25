@@ -1,10 +1,16 @@
-version: '3'
-
 services:
   goapp:
     build: .
     environment:
       - PORT=8081
       - SERVICE_B_URL=http://host.docker.internal:8080
+      - ZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
     ports:
       - "8081:8081"
+
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "9411:9411"
