@@ -66,3 +66,18 @@ Resultado esperado:
 - segunda chamada: `422 Unprocessable Entity` com `{ "message": "invalid zipcode" }`.
 
 Você também pode executar os mesmos cenários no VS Code pelo arquivo [api/apis_input_cep.http](api/apis_input_cep.http).
+
+## Resultado da implemetação
+
+`Trace completo das requisições``
+
+![Zipkin](./.img/zipkin_0.png)
+
+![Zipkin](./.img/zipkin_1.png)
+
+![Zipkin](./.img/zipkin_2.png)
+
+![Zipkin](./.img/zipkin_3.png)
+
+![Zipkin](./.img/zipkin_4.png)
+
