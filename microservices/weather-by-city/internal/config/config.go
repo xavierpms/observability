@@ -9,18 +9,20 @@ import (
 )
 
 type Config struct {
-	Port          string
-	WeatherAPIKey string
-	WeatherAPIURL string
-	ViaCEPURL     string
+	Port           string
+	WeatherAPIKey  string
+	WeatherAPIURL  string
+	ViaCEPURL      string
+	ZipkinEndpoint string
 }
 
 const (
-	defaultPort          = "8080"
+	defaultPort = "8080"
 	// The correct place to storage the API key would be in a secret manager or environment variable, but for the sake of this exercise, we will use a default value.
 	defaultWeatherAPIKey  = "d37a29f8938b4c07adb173527262402"
-	defaultWeatherAPIURL = "https://api.weatherapi.com/v1/current.json"
-	defaultViaCEPURL     = "https://viacep.com.br/ws"
+	defaultWeatherAPIURL  = "https://api.weatherapi.com/v1/current.json"
+	defaultViaCEPURL      = "https://viacep.com.br/ws"
+	defaultZipkinEndpoint = "http://localhost:9411/api/v2/spans"
 )
 
 // LoadConfig loads the environment variables and returns a Config struct
@@ -33,10 +35,11 @@ func LoadConfig() (*Config, error) {
 	}
 
 	return &Config{
-		Port:          getEnv("PORT", defaultPort),
-		WeatherAPIKey: weatherAPIKey,
-		WeatherAPIURL: getEnv("WEATHER_API_URL", defaultWeatherAPIURL),
-		ViaCEPURL:     getEnv("VIA_CEP_URL", defaultViaCEPURL),
+		Port:           getEnv("PORT", defaultPort),
+		WeatherAPIKey:  weatherAPIKey,
+		WeatherAPIURL:  getEnv("WEATHER_API_URL", defaultWeatherAPIURL),
+		ViaCEPURL:      getEnv("VIA_CEP_URL", defaultViaCEPURL),
+		ZipkinEndpoint: getEnv("ZIPKIN_ENDPOINT", defaultZipkinEndpoint),
 	}, nil
 }
 

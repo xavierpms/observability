@@ -9,13 +9,15 @@ import (
 )
 
 type Config struct {
-	Port        string
-	ServiceBURL string
+	Port           string
+	ServiceBURL    string
+	ZipkinEndpoint string
 }
 
 const (
-	defaultPort        = "8081"
-	defaultServiceBURL = "http://localhost:8080"
+	defaultPort           = "8081"
+	defaultServiceBURL    = "http://localhost:8080"
+	defaultZipkinEndpoint = "http://localhost:9411/api/v2/spans"
 )
 
 // LoadConfig loads environment variables and returns a Config struct.
@@ -23,8 +25,9 @@ func LoadConfig() (*Config, error) {
 	loadDotEnv()
 
 	return &Config{
-		Port:        getEnv("PORT", defaultPort),
-		ServiceBURL: getEnv("SERVICE_B_URL", defaultServiceBURL),
+		Port:           getEnv("PORT", defaultPort),
+		ServiceBURL:    getEnv("SERVICE_B_URL", defaultServiceBURL),
+		ZipkinEndpoint: getEnv("ZIPKIN_ENDPOINT", defaultZipkinEndpoint),
 	}, nil
 }
 
