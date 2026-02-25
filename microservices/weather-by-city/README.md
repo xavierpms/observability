@@ -36,6 +36,14 @@ Implementar e disponibilizar um serviço HTTP que:
 
 ## Execução local
 
+Variáveis de ambiente relevantes:
+
+- `PORT` (default: `8080`)
+- `WEATHER_API_KEY` (default interno definido para o exercício)
+- `WEATHER_API_URL` (default: `https://api.weatherapi.com/v1/current.json`)
+- `VIA_CEP_URL` (default: `https://viacep.com.br/ws`)
+- `ZIPKIN_ENDPOINT` (default: `http://localhost:9411/api/v2/spans`)
+
 ### 1) Via Go
 
 Na raiz do projeto:

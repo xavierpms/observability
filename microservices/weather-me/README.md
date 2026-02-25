@@ -30,6 +30,7 @@ Variáveis de ambiente:
 
 - `PORT` (default: `8081`)
 - `SERVICE_B_URL` (default: `http://localhost:8080`)
+- `ZIPKIN_ENDPOINT` (default: `http://localhost:9411/api/v2/spans`)
 
 ## Executando localmente
 
