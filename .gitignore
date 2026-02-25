@@ -8,3 +8,5 @@ go.work.sum
 microservices/weather-by-city/.DS_Store
 microservices/weather-by-city/cmd/.DS_Store
 microservices/weather-by-city/internal/.DS_Store
+microservices/.DS_Store
+microservices/weather-me/.DS_Store
