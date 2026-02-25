@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  goapp:
+    build: .
+    environment:
+      - PORT=8081
+      - SERVICE_B_URL=http://host.docker.internal:8080
+    ports:
+      - "8081:8081"
