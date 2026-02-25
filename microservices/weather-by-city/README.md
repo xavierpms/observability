@@ -44,6 +44,10 @@ Variáveis de ambiente relevantes:
 - `VIA_CEP_URL` (default: `https://viacep.com.br/ws`)
 - `ZIPKIN_ENDPOINT` (default: `http://localhost:9411/api/v2/spans`)
 
+Observabilidade:
+
+- os traces deste serviço são enviados para a instância única do Zipkin em `http://localhost:9411/zipkin/`.
+
 ### 1) Via Go
 
 Na raiz do projeto:

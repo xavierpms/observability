@@ -32,6 +32,10 @@ Variáveis de ambiente:
 - `SERVICE_B_URL` (default: `http://localhost:8080`)
 - `ZIPKIN_ENDPOINT` (default: `http://localhost:9411/api/v2/spans`)
 
+Observabilidade:
+
+- ambos os serviços exportam traces para uma única instância do Zipkin em `http://localhost:9411/zipkin/`.
+
 ## Executando localmente
 
 ```bash
