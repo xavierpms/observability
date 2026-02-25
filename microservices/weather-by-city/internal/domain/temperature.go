@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 // Temperature represents the temperature in different scales
 type Temperature struct {
 	City       string  `json:"city"`
@@ -18,17 +20,17 @@ type CEPData struct {
 
 // TemperatureRepository defines the contract for fetching temperature data
 type TemperatureRepository interface {
-	GetTemperatureByCityName(cityName string) (*Temperature, error)
+	GetTemperatureByCityName(ctx context.Context, cityName string) (*Temperature, error)
 }
 
 // CEPRepository defines the contract for fetching CEP data
 type CEPRepository interface {
-	GetCEPData(cep string) (*CEPData, error)
+	GetCEPData(ctx context.Context, cep string) (*CEPData, error)
 }
 
 // TemperatureUseCase defines the contract for the use case related to temperature retrieval
 type TemperatureUseCase interface {
-	GetTemperatureByCEP(cep string) (*Temperature, error)
+	GetTemperatureByCEP(ctx context.Context, cep string) (*Temperature, error)
 }
 
 // CEPValidator defines the contract for validating CEP

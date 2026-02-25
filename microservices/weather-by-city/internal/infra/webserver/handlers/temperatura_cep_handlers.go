@@ -32,7 +32,7 @@ func (h *TemperatureHandler) GetTemperatureByCEP(w http.ResponseWriter, r *http.
 	cep := chi.URLParam(r, "cep")
 
 	// Execute the use case
-	temperature, err := h.useCase.GetTemperatureByCEP(cep)
+	temperature, err := h.useCase.GetTemperatureByCEP(r.Context(), cep)
 
 	// Handle errors
 	if err != nil {

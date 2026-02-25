@@ -28,7 +28,7 @@ func NewInputHandler(useCase domain.CEPInputUseCase) *InputHandler {
 	return &InputHandler{useCase: useCase}
 }
 
-// ForwardCEP handles POST / requests and forwards CEP to service-b.
+// ForwardCEP handles POST / requests and forwards CEP to weather-by-city.
 func (h *InputHandler) ForwardCEP(w http.ResponseWriter, r *http.Request) {
 	var request CEPInputRequest
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -42,7 +42,7 @@ func (h *InputHandler) ForwardCEP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response, err := h.useCase.ForwardCEP(cep)
+	response, err := h.useCase.ForwardCEP(r.Context(), cep)
 	if err != nil {
 		h.handleError(w, err)
 		return

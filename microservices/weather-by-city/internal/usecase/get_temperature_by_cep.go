@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"context"
+
 	"github.com/xavierpms/weather-by-city/internal/domain"
 )
 
@@ -25,20 +27,20 @@ func NewGetTemperatureByCEP(
 }
 
 // GetTemperatureByCEP executes the business logic
-func (u *GetTemperatureByCEP) GetTemperatureByCEP(cep string) (*domain.Temperature, error) {
+func (u *GetTemperatureByCEP) GetTemperatureByCEP(ctx context.Context, cep string) (*domain.Temperature, error) {
 	// Validate the CEP format
 	if !u.cepValidator.ValidateCEPFormat(cep) {
 		return nil, domain.ErrInvalidCEPFormat
 	}
 
 	// Fetch the CEP data
-	cepData, err := u.cepRepository.GetCEPData(cep)
+	cepData, err := u.cepRepository.GetCEPData(ctx, cep)
 	if err != nil {
 		return nil, domain.ErrCEPNotFound
 	}
 
 	// Fetch the temperature for the city
-	temperature, err := u.temperatureRepository.GetTemperatureByCityName(cepData.City)
+	temperature, err := u.temperatureRepository.GetTemperatureByCityName(ctx, cepData.City)
 	if err != nil {
 		return nil, domain.ErrTemperatureNotFound
 	}

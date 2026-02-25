@@ -1,8 +1,12 @@
 package usecase
 
-import "github.com/xavierpms/service-a/internal/domain"
+import (
+	"context"
 
-// ForwardCEPUseCase represents the use case for forwarding CEP to service-b.
+	"github.com/xavierpms/service-a/internal/domain"
+)
+
+// ForwardCEPUseCase represents the use case for forwarding CEP to weather-by-city.
 type ForwardCEPUseCase struct {
 	serviceBRepository domain.ServiceBRepository
 	cepValidator       domain.CEPValidator
@@ -19,13 +23,13 @@ func NewForwardCEPUseCase(
 	}
 }
 
-// ForwardCEP validates CEP and forwards it to service-b.
-func (u *ForwardCEPUseCase) ForwardCEP(cep string) (*domain.ServiceBResponse, error) {
+// ForwardCEP validates CEP and forwards it to weather-by-city.
+func (u *ForwardCEPUseCase) ForwardCEP(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 	if !u.cepValidator.ValidateCEPFormat(cep) {
 		return nil, domain.ErrInvalidCEPFormat
 	}
 
-	response, err := u.serviceBRepository.ForwardCEP(cep)
+	response, err := u.serviceBRepository.ForwardCEP(ctx, cep)
 	if err != nil {
 		return nil, domain.ErrForwardCEP
 	}
