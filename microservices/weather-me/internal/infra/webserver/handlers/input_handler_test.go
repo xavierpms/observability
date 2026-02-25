@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"net/http"
 	"net/http/httptest"
@@ -12,18 +13,18 @@ import (
 )
 
 type mockCEPInputUseCase struct {
-	forwardCEPFunc func(cep string) (*domain.ServiceBResponse, error)
+	forwardCEPFunc func(ctx context.Context, cep string) (*domain.ServiceBResponse, error)
 	receivedCEP    string
 }
 
-func (m *mockCEPInputUseCase) ForwardCEP(cep string) (*domain.ServiceBResponse, error) {
+func (m *mockCEPInputUseCase) ForwardCEP(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 	m.receivedCEP = cep
-	return m.forwardCEPFunc(cep)
+	return m.forwardCEPFunc(ctx, cep)
 }
 
 func TestForwardCEPSuccess(t *testing.T) {
 	mockUseCase := &mockCEPInputUseCase{
-		forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+		forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 			return &domain.ServiceBResponse{
 				StatusCode:  200,
 				Body:        []byte(`{"city":"Vitória","temp_C":28.0}`),
@@ -47,7 +48,7 @@ func TestForwardCEPSuccess(t *testing.T) {
 
 func TestForwardCEPInvalidJSON(t *testing.T) {
 	mockUseCase := &mockCEPInputUseCase{
-		forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+		forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 			return &domain.ServiceBResponse{}, nil
 		},
 	}
@@ -64,7 +65,7 @@ func TestForwardCEPInvalidJSON(t *testing.T) {
 
 func TestForwardCEPInvalidZipcodeType(t *testing.T) {
 	mockUseCase := &mockCEPInputUseCase{
-		forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+		forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 			return &domain.ServiceBResponse{}, nil
 		},
 	}
@@ -81,7 +82,7 @@ func TestForwardCEPInvalidZipcodeType(t *testing.T) {
 
 func TestForwardCEPInvalidZipcodeFormat(t *testing.T) {
 	mockUseCase := &mockCEPInputUseCase{
-		forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+		forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 			return nil, domain.ErrInvalidCEPFormat
 		},
 	}
@@ -98,7 +99,7 @@ func TestForwardCEPInvalidZipcodeFormat(t *testing.T) {
 
 func TestForwardCEPInternalError(t *testing.T) {
 	mockUseCase := &mockCEPInputUseCase{
-		forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+		forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 			return nil, errors.New("unexpected")
 		},
 	}

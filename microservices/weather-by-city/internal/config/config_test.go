@@ -9,9 +9,11 @@ import (
 func TestLoadDotEnvFromParentDirectory(t *testing.T) {
 	originalWeatherAPIKey, hadWeatherAPIKey := os.LookupEnv("WEATHER_API_KEY")
 	originalPort, hadPort := os.LookupEnv("PORT")
+	originalZipkinEndpoint, hadZipkinEndpoint := os.LookupEnv("ZIPKIN_ENDPOINT")
 
 	_ = os.Unsetenv("WEATHER_API_KEY")
 	_ = os.Unsetenv("PORT")
+	_ = os.Unsetenv("ZIPKIN_ENDPOINT")
 
 	defer func() {
 		if hadWeatherAPIKey {
@@ -25,6 +27,12 @@ func TestLoadDotEnvFromParentDirectory(t *testing.T) {
 		} else {
 			_ = os.Unsetenv("PORT")
 		}
+
+		if hadZipkinEndpoint {
+			_ = os.Setenv("ZIPKIN_ENDPOINT", originalZipkinEndpoint)
+		} else {
+			_ = os.Unsetenv("ZIPKIN_ENDPOINT")
+		}
 	}()
 
 	tmpRoot := t.TempDir()
@@ -35,7 +43,7 @@ func TestLoadDotEnvFromParentDirectory(t *testing.T) {
 		t.Fatalf("failed to create nested directories: %v", err)
 	}
 
-	envContent := "WEATHER_API_KEY=test_parent_key\nPORT=9999\n"
+	envContent := "WEATHER_API_KEY=test_parent_key\nPORT=9999\nZIPKIN_ENDPOINT=http://zipkin:9411/api/v2/spans\n"
 	if err := os.WriteFile(filepath.Join(projectRoot, ".env"), []byte(envContent), 0o644); err != nil {
 		t.Fatalf("failed to write .env file: %v", err)
 	}
@@ -63,6 +71,10 @@ func TestLoadDotEnvFromParentDirectory(t *testing.T) {
 
 	if cfg.Port != "9999" {
 		t.Fatalf("expected Port to be loaded from parent .env, got %q", cfg.Port)
+	}
+
+	if cfg.ZipkinEndpoint != "http://zipkin:9411/api/v2/spans" {
+		t.Fatalf("expected ZipkinEndpoint loaded from parent .env, got %q", cfg.ZipkinEndpoint)
 	}
 }
 
@@ -96,6 +108,7 @@ func TestLoadConfigUsesDefaultsWhenVarsAreMissingOrEmpty(t *testing.T) {
 	t.Setenv("PORT", "")
 	t.Setenv("WEATHER_API_URL", "")
 	t.Setenv("VIA_CEP_URL", "")
+	t.Setenv("ZIPKIN_ENDPOINT", "")
 
 	cfg, err := LoadConfig()
 	if err != nil {
@@ -112,5 +125,9 @@ func TestLoadConfigUsesDefaultsWhenVarsAreMissingOrEmpty(t *testing.T) {
 
 	if cfg.ViaCEPURL != defaultViaCEPURL {
 		t.Fatalf("expected default ViaCEP URL %q, got %q", defaultViaCEPURL, cfg.ViaCEPURL)
+	}
+
+	if cfg.ZipkinEndpoint != defaultZipkinEndpoint {
+		t.Fatalf("expected default Zipkin endpoint %q, got %q", defaultZipkinEndpoint, cfg.ZipkinEndpoint)
 	}
 }

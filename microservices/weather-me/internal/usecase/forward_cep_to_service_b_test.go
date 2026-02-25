@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -9,15 +10,15 @@ import (
 )
 
 type mockServiceBRepository struct {
-	forwardCEPFunc func(cep string) (*domain.ServiceBResponse, error)
+	forwardCEPFunc func(ctx context.Context, cep string) (*domain.ServiceBResponse, error)
 	called         bool
 	receivedCEP    string
 }
 
-func (m *mockServiceBRepository) ForwardCEP(cep string) (*domain.ServiceBResponse, error) {
+func (m *mockServiceBRepository) ForwardCEP(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 	m.called = true
 	m.receivedCEP = cep
-	return m.forwardCEPFunc(cep)
+	return m.forwardCEPFunc(ctx, cep)
 }
 
 type mockCEPValidator struct {
@@ -29,7 +30,7 @@ func (m *mockCEPValidator) ValidateCEPFormat(cep string) bool {
 }
 
 func TestForwardCEPInvalidFormat(t *testing.T) {
-	repo := &mockServiceBRepository{forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+	repo := &mockServiceBRepository{forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 		return &domain.ServiceBResponse{}, nil
 	}}
 	validator := &mockCEPValidator{validateCEPFormatFunc: func(cep string) bool {
@@ -37,7 +38,7 @@ func TestForwardCEPInvalidFormat(t *testing.T) {
 	}}
 
 	useCase := NewForwardCEPUseCase(repo, validator)
-	response, err := useCase.ForwardCEP("2990255")
+	response, err := useCase.ForwardCEP(context.Background(), "2990255")
 
 	assert.Nil(t, response)
 	assert.ErrorIs(t, err, domain.ErrInvalidCEPFormat)
@@ -45,15 +46,15 @@ func TestForwardCEPInvalidFormat(t *testing.T) {
 }
 
 func TestForwardCEPRepositoryError(t *testing.T) {
-	repo := &mockServiceBRepository{forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
-		return nil, errors.New("service-b down")
+	repo := &mockServiceBRepository{forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
+		return nil, errors.New("weather-by-city service is down")
 	}}
 	validator := &mockCEPValidator{validateCEPFormatFunc: func(cep string) bool {
 		return true
 	}}
 
 	useCase := NewForwardCEPUseCase(repo, validator)
-	response, err := useCase.ForwardCEP("29902555")
+	response, err := useCase.ForwardCEP(context.Background(), "29902555")
 
 	assert.Nil(t, response)
 	assert.ErrorIs(t, err, domain.ErrForwardCEP)
@@ -62,7 +63,7 @@ func TestForwardCEPRepositoryError(t *testing.T) {
 }
 
 func TestForwardCEPSuccess(t *testing.T) {
-	repo := &mockServiceBRepository{forwardCEPFunc: func(cep string) (*domain.ServiceBResponse, error) {
+	repo := &mockServiceBRepository{forwardCEPFunc: func(ctx context.Context, cep string) (*domain.ServiceBResponse, error) {
 		return &domain.ServiceBResponse{
 			StatusCode:  200,
 			Body:        []byte(`{"city":"Vitória"}`),
@@ -74,7 +75,7 @@ func TestForwardCEPSuccess(t *testing.T) {
 	}}
 
 	useCase := NewForwardCEPUseCase(repo, validator)
-	response, err := useCase.ForwardCEP("29902555")
+	response, err := useCase.ForwardCEP(context.Background(), "29902555")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, response)

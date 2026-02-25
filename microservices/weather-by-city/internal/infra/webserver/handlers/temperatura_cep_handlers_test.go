@@ -15,13 +15,13 @@ import (
 
 // MockTemperatureUseCase is a mock of the TemperatureUseCase for testing
 type MockTemperatureUseCase struct {
-	getTemperatureByCEPFunc func(cep string) (*domain.Temperature, error)
+	getTemperatureByCEPFunc func(ctx context.Context, cep string) (*domain.Temperature, error)
 	receivedCEP             string
 }
 
-func (m *MockTemperatureUseCase) GetTemperatureByCEP(cep string) (*domain.Temperature, error) {
+func (m *MockTemperatureUseCase) GetTemperatureByCEP(ctx context.Context, cep string) (*domain.Temperature, error) {
 	m.receivedCEP = cep
-	return m.getTemperatureByCEPFunc(cep)
+	return m.getTemperatureByCEPFunc(ctx, cep)
 }
 
 func buildRequestWithCEP(cep string) *http.Request {
@@ -35,7 +35,7 @@ func buildRequestWithCEP(cep string) *http.Request {
 func TestGetTemperatureByCEPSuccess(t *testing.T) {
 	// Arrange
 	mockUseCase := &MockTemperatureUseCase{
-		getTemperatureByCEPFunc: func(cep string) (*domain.Temperature, error) {
+		getTemperatureByCEPFunc: func(ctx context.Context, cep string) (*domain.Temperature, error) {
 			return &domain.Temperature{
 				City:       "São Paulo",
 				Celsius:    28.5,
@@ -70,7 +70,7 @@ func TestGetTemperatureByCEPSuccess(t *testing.T) {
 func TestGetTemperatureByCEPInvalidFormat(t *testing.T) {
 	// Arrange
 	mockUseCase := &MockTemperatureUseCase{
-		getTemperatureByCEPFunc: func(cep string) (*domain.Temperature, error) {
+		getTemperatureByCEPFunc: func(ctx context.Context, cep string) (*domain.Temperature, error) {
 			return nil, domain.ErrInvalidCEPFormat
 		},
 	}
@@ -95,7 +95,7 @@ func TestGetTemperatureByCEPInvalidFormat(t *testing.T) {
 func TestGetTemperatureByCEPNotFound(t *testing.T) {
 	// Arrange
 	mockUseCase := &MockTemperatureUseCase{
-		getTemperatureByCEPFunc: func(cep string) (*domain.Temperature, error) {
+		getTemperatureByCEPFunc: func(ctx context.Context, cep string) (*domain.Temperature, error) {
 			return nil, domain.ErrCEPNotFound
 		},
 	}
@@ -120,7 +120,7 @@ func TestGetTemperatureByCEPNotFound(t *testing.T) {
 func TestGetTemperatureByCEPTemperatureNotFound(t *testing.T) {
 	// Arrange
 	mockUseCase := &MockTemperatureUseCase{
-		getTemperatureByCEPFunc: func(cep string) (*domain.Temperature, error) {
+		getTemperatureByCEPFunc: func(ctx context.Context, cep string) (*domain.Temperature, error) {
 			return nil, domain.ErrTemperatureNotFound
 		},
 	}
@@ -144,7 +144,7 @@ func TestGetTemperatureByCEPTemperatureNotFound(t *testing.T) {
 func TestGetTemperatureByCEPInternalError(t *testing.T) {
 	// Arrange
 	mockUseCase := &MockTemperatureUseCase{
-		getTemperatureByCEPFunc: func(cep string) (*domain.Temperature, error) {
+		getTemperatureByCEPFunc: func(ctx context.Context, cep string) (*domain.Temperature, error) {
 			return nil, errors.New("unexpected")
 		},
 	}

@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"context"
 	"errors"
 	"testing"
 
@@ -9,27 +10,27 @@ import (
 )
 
 type mockCEPRepository struct {
-	getCEPDataFunc func(cep string) (*domain.CEPData, error)
+	getCEPDataFunc func(ctx context.Context, cep string) (*domain.CEPData, error)
 	called         bool
 	receivedCEP    string
 }
 
-func (m *mockCEPRepository) GetCEPData(cep string) (*domain.CEPData, error) {
+func (m *mockCEPRepository) GetCEPData(ctx context.Context, cep string) (*domain.CEPData, error) {
 	m.called = true
 	m.receivedCEP = cep
-	return m.getCEPDataFunc(cep)
+	return m.getCEPDataFunc(ctx, cep)
 }
 
 type mockTemperatureRepository struct {
-	getTemperatureByCityNameFunc func(cityName string) (*domain.Temperature, error)
+	getTemperatureByCityNameFunc func(ctx context.Context, cityName string) (*domain.Temperature, error)
 	called                       bool
 	receivedCity                 string
 }
 
-func (m *mockTemperatureRepository) GetTemperatureByCityName(cityName string) (*domain.Temperature, error) {
+func (m *mockTemperatureRepository) GetTemperatureByCityName(ctx context.Context, cityName string) (*domain.Temperature, error) {
 	m.called = true
 	m.receivedCity = cityName
-	return m.getTemperatureByCityNameFunc(cityName)
+	return m.getTemperatureByCityNameFunc(ctx, cityName)
 }
 
 type mockCEPValidator struct {
@@ -41,10 +42,10 @@ func (m *mockCEPValidator) ValidateCEPFormat(cep string) bool {
 }
 
 func TestGetTemperatureByCEPInvalidFormat(t *testing.T) {
-	cepRepo := &mockCEPRepository{getCEPDataFunc: func(cep string) (*domain.CEPData, error) {
+	cepRepo := &mockCEPRepository{getCEPDataFunc: func(ctx context.Context, cep string) (*domain.CEPData, error) {
 		return &domain.CEPData{}, nil
 	}}
-	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(cityName string) (*domain.Temperature, error) {
+	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(ctx context.Context, cityName string) (*domain.Temperature, error) {
 		return &domain.Temperature{}, nil
 	}}
 	validator := &mockCEPValidator{validateCEPFormatFunc: func(cep string) bool {
@@ -52,7 +53,7 @@ func TestGetTemperatureByCEPInvalidFormat(t *testing.T) {
 	}}
 
 	useCase := NewGetTemperatureByCEP(cepRepo, tempRepo, validator)
-	temperature, err := useCase.GetTemperatureByCEP("3245000")
+	temperature, err := useCase.GetTemperatureByCEP(context.Background(), "3245000")
 
 	assert.Nil(t, temperature)
 	assert.ErrorIs(t, err, domain.ErrInvalidCEPFormat)
@@ -61,10 +62,10 @@ func TestGetTemperatureByCEPInvalidFormat(t *testing.T) {
 }
 
 func TestGetTemperatureByCEPCEPNotFound(t *testing.T) {
-	cepRepo := &mockCEPRepository{getCEPDataFunc: func(cep string) (*domain.CEPData, error) {
+	cepRepo := &mockCEPRepository{getCEPDataFunc: func(ctx context.Context, cep string) (*domain.CEPData, error) {
 		return nil, errors.New("viacep error")
 	}}
-	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(cityName string) (*domain.Temperature, error) {
+	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(ctx context.Context, cityName string) (*domain.Temperature, error) {
 		return &domain.Temperature{}, nil
 	}}
 	validator := &mockCEPValidator{validateCEPFormatFunc: func(cep string) bool {
@@ -72,7 +73,7 @@ func TestGetTemperatureByCEPCEPNotFound(t *testing.T) {
 	}}
 
 	useCase := NewGetTemperatureByCEP(cepRepo, tempRepo, validator)
-	temperature, err := useCase.GetTemperatureByCEP("32450000")
+	temperature, err := useCase.GetTemperatureByCEP(context.Background(), "32450000")
 
 	assert.Nil(t, temperature)
 	assert.ErrorIs(t, err, domain.ErrCEPNotFound)
@@ -82,10 +83,10 @@ func TestGetTemperatureByCEPCEPNotFound(t *testing.T) {
 }
 
 func TestGetTemperatureByCEPTemperatureNotFound(t *testing.T) {
-	cepRepo := &mockCEPRepository{getCEPDataFunc: func(cep string) (*domain.CEPData, error) {
+	cepRepo := &mockCEPRepository{getCEPDataFunc: func(ctx context.Context, cep string) (*domain.CEPData, error) {
 		return &domain.CEPData{City: "São Paulo"}, nil
 	}}
-	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(cityName string) (*domain.Temperature, error) {
+	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(ctx context.Context, cityName string) (*domain.Temperature, error) {
 		return nil, errors.New("weather error")
 	}}
 	validator := &mockCEPValidator{validateCEPFormatFunc: func(cep string) bool {
@@ -93,7 +94,7 @@ func TestGetTemperatureByCEPTemperatureNotFound(t *testing.T) {
 	}}
 
 	useCase := NewGetTemperatureByCEP(cepRepo, tempRepo, validator)
-	temperature, err := useCase.GetTemperatureByCEP("32450000")
+	temperature, err := useCase.GetTemperatureByCEP(context.Background(), "32450000")
 
 	assert.Nil(t, temperature)
 	assert.ErrorIs(t, err, domain.ErrTemperatureNotFound)
@@ -102,10 +103,10 @@ func TestGetTemperatureByCEPTemperatureNotFound(t *testing.T) {
 }
 
 func TestGetTemperatureByCEPSuccess(t *testing.T) {
-	cepRepo := &mockCEPRepository{getCEPDataFunc: func(cep string) (*domain.CEPData, error) {
+	cepRepo := &mockCEPRepository{getCEPDataFunc: func(ctx context.Context, cep string) (*domain.CEPData, error) {
 		return &domain.CEPData{City: "São Paulo"}, nil
 	}}
-	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(cityName string) (*domain.Temperature, error) {
+	tempRepo := &mockTemperatureRepository{getTemperatureByCityNameFunc: func(ctx context.Context, cityName string) (*domain.Temperature, error) {
 		return &domain.Temperature{
 			Celsius:    28.5,
 			Fahrenheit: 83.3,
@@ -117,7 +118,7 @@ func TestGetTemperatureByCEPSuccess(t *testing.T) {
 	}}
 
 	useCase := NewGetTemperatureByCEP(cepRepo, tempRepo, validator)
-	temperature, err := useCase.GetTemperatureByCEP("32450000")
+	temperature, err := useCase.GetTemperatureByCEP(context.Background(), "32450000")
 
 	assert.NoError(t, err)
 	assert.NotNil(t, temperature)
