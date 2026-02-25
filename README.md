@@ -86,6 +86,34 @@ docker compose up -d --build
 - Serviço B: `http://localhost:8080`
 - Zipkin: `http://localhost:9411/zipkin/`
 
+## Ambiente de desenvolvimento (stack único)
+
+Para subir os dois projetos juntos em um ambiente de dev com configuração centralizada:
+
+1) Crie seu arquivo de variáveis de dev:
+
+```bash
+cp .env.dev.example .env.dev
+```
+
+2) Suba todo o ambiente:
+
+```bash
+docker compose -f docker-compose.dev.yaml --env-file .env.dev up -d --build
+```
+
+3) Verifique os endpoints:
+
+- Serviço A: `http://localhost:${WEATHER_ME_PORT:-8081}`
+- Serviço B: `http://localhost:${WEATHER_BY_CITY_PORT:-8080}`
+- Zipkin: `http://localhost:${ZIPKIN_PORT:-9411}/zipkin/`
+
+4) Derrube o ambiente quando finalizar:
+
+```bash
+docker compose -f docker-compose.dev.yaml --env-file .env.dev down
+```
+
 ## Endpoints
 
 ### Serviço A

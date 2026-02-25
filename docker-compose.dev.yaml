@@ -1,0 +1,32 @@
+services:
+  zipkin:
+    image: openzipkin/zipkin:latest
+    ports:
+      - "${ZIPKIN_PORT:-9411}:9411"
+
+  weather-by-city:
+    build:
+      context: ./microservices/weather-by-city
+    depends_on:
+      - zipkin
+    environment:
+      PORT: "8080"
+      WEATHER_API_KEY: "${WEATHER_API_KEY:-}"
+      WEATHER_API_URL: "${WEATHER_API_URL:-https://api.weatherapi.com/v1/current.json}"
+      VIA_CEP_URL: "${VIA_CEP_URL:-https://viacep.com.br/ws}"
+      ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+    ports:
+      - "${WEATHER_BY_CITY_PORT:-8080}:8080"
+
+  weather-me:
+    build:
+      context: ./microservices/weather-me
+    depends_on:
+      - weather-by-city
+      - zipkin
+    environment:
+      PORT: "8081"
+      SERVICE_B_URL: "http://weather-by-city:8080"
+      ZIPKIN_ENDPOINT: "http://zipkin:9411/api/v2/spans"
+    ports:
+      - "${WEATHER_ME_PORT:-8081}:8081"
